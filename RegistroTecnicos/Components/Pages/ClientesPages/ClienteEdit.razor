@@ -1,0 +1,134 @@
+﻿@page "/Cliente/Edit/{ClienteId:int}"
+@inject ClientesService clientesService
+@rendermode InteractiveServer
+@inject NavigationManager navigationManager
+
+@*HTML*@
+<PageTitle>Create</PageTitle>
+<EditForm Model="Cliente" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Crear Cliente</h5>
+            </div>
+
+            <div class="card-body ">
+
+
+                @*Nombres*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Nombres</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Nombres"></InputText>
+                    <ValidationMessage For="(() => Cliente.Nombres)" />
+                </div>
+                @*FechaIngreso*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>FechaIngreso</strong></label>
+                    <InputDate class="form-control" @bind-Value="Cliente.FechaIngreso"></InputDate>
+                    <ValidationMessage For="(() => Cliente.FechaIngreso)" />
+                </div>
+                @*Direccion*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Direccion</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Direccion"></InputText>
+                    <ValidationMessage For="(() => Cliente.Direccion)" />
+
+                </div>
+                @*Rnc*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>Rnc</strong></label>
+                    <InputText class="form-control" @bind-Value="Cliente.Rnc"></InputText>
+                    <ValidationMessage For="(() => Cliente.Rnc)" />
+                </div>
+                @*LimiteCredito*@
+                <div class="mb-3">
+                    <label class="form-label"><strong>SueldoHoras</strong></label>
+                    <InputNumber class="form-control" @bind-Value="Cliente.LimiteCredito"></InputNumber>
+                    <ValidationMessage For="(() => Cliente.LimiteCredito)" />
+                </div>
+            </div>
+
+            @*footer*@
+            <div class="card-footer text-center mt-2">
+                <a href="/Cliente/Index" class="btn btn-secondary"> <span class="bi bi-arrow-left"></span> Volver</a>
+                <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
+                <button type="button" class="btn btn-danger bi bi-trash" @onclick="Eliminar"> Eliminar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+
+@code {
+    [Parameter]
+    public int ClienteId { get; set; }
+
+    public Clientes Cliente { get; set; } = new Clientes();
+
+    public string? Message { get; set; } = string.Empty;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cliente = await clientesService.Buscar(ClienteId);
+
+    }
+
+
+    public async Task Guardar()
+    {
+        if (await Validar())
+        {
+            Message = " ya existe el tecnico con este nombre";
+            return;
+        }
+        var crear = await clientesService.Guardar(Cliente);
+
+        if (crear)
+        {
+            Message = "se ha creado";
+            Volver();
+        }
+        else
+        {
+            Message = " no se ha podido crear ";
+        }
+    }
+    private async Task<bool> Validar()
+    {
+        var existe = await clientesService.ExisteCliente(Cliente.ClientesId, Cliente.Nombres);
+        return existe;
+    }
+
+    public void Volver()
+    {
+        navigationManager.NavigateTo("/Cliente/Index");
+    }
+
+    public void Nuevo()
+    {
+        this.Cliente = new Clientes();
+
+    }
+
+    private async Task Eliminar()
+    {
+        var eliminado = await clientesService.Eliminar(Cliente.ClientesId);
+
+        if (eliminado)
+        {
+            Message = "Se ha eliminado correctamente";
+            Volver();
+        }
+        else
+        {
+            Message = "No se ha podido eliminar correctamente";
+        }
+    }
+}
+
