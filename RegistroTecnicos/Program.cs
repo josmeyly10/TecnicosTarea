@@ -17,6 +17,9 @@ builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConStr));
 //Inyeccion del service
 builder.Services.AddScoped<TecnicosService>();
 
+//Inyeccion del service de cliente 
+builder.Services.AddScoped<ClientesService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
